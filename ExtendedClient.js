@@ -113,6 +113,12 @@ export default class ExtendedClient extends Client {
     });
   }
 
+  getRank(points) {
+    return Object.entries(this.ranks).find(
+      ([_, v]) => v.range[0] <= points && points <= v.range[1]
+    );
+  }
+
   getLevel(xp) {
     let start = 0;
     let level = 0;

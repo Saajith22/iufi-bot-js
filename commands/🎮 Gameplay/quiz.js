@@ -164,9 +164,39 @@ export default {
           : prev - 0.5;
       }, 0);
 
+      let promotion = null;
+
       const data = await client.getData(message.author.id);
       if (!data || !data.points) data.points = points;
-      else data.points += points;
+      else {
+        const currentRank = client.getRank(data.points);
+        data.points += points;
+
+        if (!data.claimed) data.claimed = [];
+
+        const nextRank = client.getRank(data.points);
+
+        if (currentRank[0] !== nextRank[0]) {
+          if (nextRank[1].range[1] > currentRank[1].range[1]) {
+            if (!data.claimed.includes(nextRank[0])) {
+              promotion = nextRank;
+              data.claimed.push(nextRank[0]);
+
+              const pot = {
+                name: "speed",
+                level: 3,
+                amount: 1,
+              };
+
+              if (!data.potions) data.potions = [pot];
+              else data.potions.push(pot);
+
+              await client.changeBalance(message.author.id, 100);
+              await client.giveXP(message.author.id, 100);
+            }
+          }
+        }
+      }
 
       await client.db.collection("users").updateOne(
         {
@@ -174,7 +204,7 @@ export default {
         },
         {
           $set: {
-            points: data.points,
+            ...data,
             averageTime: avgTime,
           },
         },
@@ -187,22 +217,37 @@ export default {
         content: "This game has expired.",
         components: [],
         embeds: [
-          client.createEmbed({
-            title: "Quiz Result",
-            description: `${client.blocker(
-              answers
-                .map((a) =>
-                  a === false ? "❌" : a === undefined ? "⬛" : "✅"
-                )
-                .join(" ")
-            )}\n${client.blocker(
-              `🕔 Time Used: ${client.ms(start).format}\n🕘 Avg Time:  ${
-                avgTime / 10
-              }s ${avgTime > data.averageTime ? "🔺" : "🔻"}\n🔥 Points:    ${
-                data.points
-              } (${points})`
-            )}`,
-          }),
+          client
+            .createEmbed({
+              title: "Quiz Result",
+              description: `${client.blocker(
+                answers
+                  .map((a) =>
+                    a === false ? "❌" : a === undefined ? "⬛" : "✅"
+                  )
+                  .join(" ")
+              )}\n${client.blocker(
+                `🕔 Time Used: ${client.ms(start).format}\n🕘 Avg Time:  ${
+                  avgTime / 10
+                }s ${avgTime > data.averageTime ? "🔺" : "🔻"}\n🔥 Points:    ${
+                  data.points
+                } (${points})`
+              )}`,
+            })
+            .addFields(
+              promotion
+                ? [
+                    {
+                      name: `${promotion[1].icon} ${client.title(
+                        promotion[0]
+                      )} Promotion Rewards`,
+                      value: client.blocker(
+                        `1. ⚔️ Exp              x100\n2. 🍬 Candies          x100\n3. ⚡ Speed III Potion x1`
+                      ),
+                    },
+                  ]
+                : []
+            ),
         ],
       });
     });

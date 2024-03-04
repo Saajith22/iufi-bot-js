@@ -36,11 +36,7 @@ export default {
       }`;
     });
 
-    const rank = Object.entries(client.ranks).find(
-      ([_, v]) => v.range[0] <= data.xp && data.xp <= v.range[1]
-    );
-
-    console.log(rank);
+    const rank = client.getRank(data.points || 0);
 
     await message.reply({
       files: [attach],

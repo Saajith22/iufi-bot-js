@@ -37,6 +37,14 @@ export default {
     if (pot < 0) return await message.reply("You don't have this potion.");
 
     const pott = user.potions[pot];
+    const cooldowns = await client.db
+      .collection("cooldown")
+      .findOne({ userId: message.author.id });
+
+    if (cooldowns && cooldowns.find((c) => c.name === pott.name))
+      return await message.reply(
+        "You already have a potion of this type active."
+      );
 
     user.potions.splice(pot, 1);
     await client.db.collection("users").updateOne(

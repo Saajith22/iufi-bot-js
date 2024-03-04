@@ -25,7 +25,7 @@ export default {
         : "Ready";
     };
 
-    const conv = ["⚡ Spped", "🍀 Luck"];
+    const conv = ["⚡ Speed", "🍀 Luck"];
     const potCooldowns =
       data &&
       data.cooldowns

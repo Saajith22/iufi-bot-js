@@ -24,6 +24,8 @@ export default {
       }
     }
 
+    const colors = ["🟥", "🟧", "🟨", "🟩", "🟦", "🟪"];
+
     let streak = data.streak || 0;
     const strk = await Promise.all(
       streakRewards.reverse().map(async (s, i) => {
@@ -37,7 +39,7 @@ export default {
         const repeats = streak > 0 ? (streak >= 5 ? 5 : 5 - streak) : 0;
         if (streak > 0) streak -= 5;
 
-        return `${"🟥".repeat(repeats)}${"⬜".repeat(
+        return `${colors[i].repeat(repeats)}${"⬜".repeat(
           5 - repeats
         )}    ${client.spacer(s, 9, true)} ${won ? "✅" : "⬛"}`;
       })

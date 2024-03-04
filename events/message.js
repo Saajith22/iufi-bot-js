@@ -16,10 +16,18 @@ client.on("messageCreate", async (message) => {
 
       if (cmd.cooldown) {
         const data = await db.findOne(initData);
+        const speed = data?.cooldowns?.find((p) => p.name === "speed");
+        if (speed) {
+          cmd.cooldown = 2 * speed.level * 60 * 1000;
+        }
+
+        const setterData = {
+          name: cmd.name,
+          time: Date.now() + cmd.cooldown,
+        };
 
         if (data) {
           const cd = data.cooldowns.findIndex((c) => c.name === cmd.name);
-
           if (cd > -1) {
             const cooldown = data.cooldowns[cd];
             if (Date.now() <= cooldown.time)
@@ -32,7 +40,7 @@ client.on("messageCreate", async (message) => {
               data.cooldowns.splice(cd, 1);
               if (cmd.name === "daily")
                 data.streakReset = Date.now() + 24 * 60 * 60 * 1000;
-              
+
               await db.updateOne(initData, {
                 $set: {
                   cooldowns: data.cooldowns,
@@ -42,25 +50,14 @@ client.on("messageCreate", async (message) => {
           } else {
             await db.updateOne(initData, {
               $set: {
-                cooldowns: [
-                  ...data.cooldowns,
-                  {
-                    name: cmd.name,
-                    time: Date.now() + cmd.cooldown,
-                  },
-                ],
+                cooldowns: [...data.cooldowns, setterData],
               },
             });
           }
         } else {
           await db.insertOne({
             ...initData,
-            cooldowns: [
-              {
-                name: cmd.name,
-                time: Date.now() + cmd.cooldown,
-              },
-            ],
+            cooldowns: [setterData],
           });
         }
       }

@@ -87,6 +87,9 @@ client.on("ready", async () => {
   //REMINDER EVENT
   const conv = {
     roll: "🎲",
+    quiz: "💯",
+    game: "🃏",
+    daily: "📅",
   };
 
   setInterval(async () => {

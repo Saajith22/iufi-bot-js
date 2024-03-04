@@ -53,6 +53,13 @@ export default {
       );
     }
 
+    const pot = await client.db
+      .collection("cooldown")
+      .findOne({ userId: message.author.id });
+
+    const neededPot = pot && pot.cooldowns.find((p) => p.name === "luck");
+    const inc = neededPot ? neededPot.level + 3 : 1;
+
     const dropChances = {
       rare: 50000,
       epic: 3000,
@@ -74,7 +81,9 @@ export default {
       if (i === randomPos && rarity) type = rarity;
       else {
         const random = Math.floor(Math.random() * 1000000);
-        const find = Object.entries(dropChances).find(([_, v]) => random <= v);
+        const find = Object.entries(dropChances).find(
+          ([_, v]) => random <= v * inc
+        );
         if (find) type = find[0];
       }
 
