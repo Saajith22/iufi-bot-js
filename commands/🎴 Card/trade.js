@@ -132,7 +132,7 @@ export default {
       await msg.edit({
         components: [row],
         embeds: [embed],
-        files: [attach],
+        files: [],
       });
     });
   },

@@ -32,15 +32,21 @@ export default {
                     19 - modify.length
                   )}x${i.amount}`;
                 })
-                .join("\n")}\n\n\n🍶 Potions:\n${user.potions
-                .map(
-                  (p) =>
-                    `${client.spacer(
-                      `${client.title(p.name)} ${"I".repeat(p.level)} Potion`,
-                      21
-                    )} x${p.amount}`
-                )
-                .join("\n")}`
+                .join("\n")}\n\n\n🍶 Potions:\n${
+                user.potions && user.potions.length > 0
+                  ? user.potions
+                      .map(
+                        (p) =>
+                          `${client.spacer(
+                            `${client.title(p.name)} ${"I".repeat(
+                              p.level
+                            )} Potion`,
+                            21
+                          )} x${p.amount}`
+                      )
+                      .join("\n")
+                  : ""
+              }`
             ),
           })
           .setThumbnail(message.author.avatarURL()),
