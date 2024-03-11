@@ -113,6 +113,8 @@ client.on("ready", async () => {
               let copy = [...data.cooldowns];
               copy.splice(i, 1);
 
+              console.log(c, i);
+
               await cooldown.updateOne(
                 {
                   userId,

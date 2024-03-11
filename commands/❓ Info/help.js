@@ -27,16 +27,18 @@ export default {
     }
 
     const categories = fs.readdirSync("./commands");
-    const final = categories.map((c) => {
-      const cmds = client.commands
-        .filter((cmd) => cmd.category === c)
-        .map((cmd) => `${process.env.prefix}${cmd.name}`);
+    const final = categories
+      .filter((c) => c !== "Admin")
+      .map((c) => {
+        const cmds = client.commands
+          .filter((cmd) => cmd.category === c)
+          .map((cmd) => `${process.env.prefix}${cmd.name}`);
 
-      return {
-        name: `${c}: [${cmds.length}]`,
-        value: client.blocker(`${cmds.join(", ")}`),
-      };
-    });
+        return {
+          name: `${c}: [${cmds.length}]`,
+          value: client.blocker(`${cmds.join(", ")}`),
+        };
+      });
 
     const row = new ActionRowBuilder().addComponents(
       new ButtonBuilder()

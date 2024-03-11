@@ -1,4 +1,5 @@
 import client from "../index.js";
+import fs from "fs";
 
 client.on("messageCreate", async (message) => {
   if (message.content.startsWith(process.env.prefix)) {
@@ -9,6 +10,33 @@ client.on("messageCreate", async (message) => {
       client.commands.find((cmd) => cmd.aliases.includes(command));
 
     if (cmd) {
+      if (cmd.name !== "verify") {
+        const verified = await client.db.collection("verify").findOne({
+          userId: message.author.id,
+        });
+
+        if (!verified)
+          return await message.reply(
+            "## You are not verified. Please use `qverify` to get verified."
+          );
+      }
+
+      const blacklist = await client.db.collection("blacklist").findOne({
+        userId: message.author.id,
+      });
+
+      if (blacklist)
+        return await message.reply(
+          "## You are blacklisted and can not use the bot."
+        );
+
+      const adminCommands = fs
+        .readdirSync("./commands/Admin")
+        .map((c) => c.replace(".js", ""));
+
+      if (adminCommands.includes(cmd.name))
+        if (!message.member.permissions.has("Administrator")) return;
+
       const db = client.db.collection("cooldown");
       const initData = {
         userId: message.author.id,
