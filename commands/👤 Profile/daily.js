@@ -26,7 +26,7 @@ export default {
 
     const colors = ["🟥", "🟧", "🟨", "🟩", "🟦", "🟪"];
 
-    let streak = data.streak || 0;
+    let streak = data?.streak || 0;
     const strk = await Promise.all(
       streakRewards.reverse().map(async (s, i) => {
         const won = streak >= (i + 1) * 5;

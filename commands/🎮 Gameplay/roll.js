@@ -92,7 +92,7 @@ export default {
           async (card) => {
             const { id } = card;
             const users = await client.db.collection("users").find().toArray();
-            return users.find((user) => user.cards.find((c) => c.id === id));
+            return users.find((user) => user.cards?.find((c) => c.id === id));
           }
         )
       );
