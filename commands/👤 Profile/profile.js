@@ -18,7 +18,7 @@ export default {
     if (!data) return await message.reply("User has no data.");
 
     const attach = new AttachmentBuilder()
-      .setFile(data.main.url)
+      .setFile(data.main?.url)
       .setName("main.png");
 
     const { start, level } = client.getLevel(data.xp);
@@ -45,7 +45,9 @@ export default {
           .createEmbed({
             title: `👤 ${member.displayName}'s Profile`,
             description: client.blocker(
-              `📙 Photocards: ${data.cards.length}/100\n⚔️ Level: ${level} (${
+              `📙 Photocards: ${
+                data.cards ? data.cards.length : 0
+              }/100\n⚔️ Level: ${level} (${
                 data.xp > 0 ? ((data.xp * 100) / start).toFixed(1) : "0.0"
               }%)`
             ),
