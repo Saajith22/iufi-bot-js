@@ -17,15 +17,12 @@ export default {
     const data = await client.getData(member.id);
     if (!data) return await message.reply("User has no data.");
 
-    const attach = new AttachmentBuilder()
-      .setFile(data.main?.url)
-      .setName("main.png");
-
     const { start, level } = client.getLevel(data.xp);
 
     const converts = ["🟩", "🟦", "🟪"];
     const match = converts.map((c, i) => {
       const details = data.games && data.games[i + 1];
+      console.log("DETAILS", details);
 
       return `${c} **Level ${i + 1}**: ${
         details
@@ -37,42 +34,53 @@ export default {
     });
 
     const rank = client.getRank(data.points || 0);
+    const embed = client
+      .createEmbed({
+        title: `👤 ${member.displayName}'s Profile`,
+        description: client.blocker(
+          `📙 Photocards: ${
+            data.cards ? data.cards.length : 0
+          }/100\n⚔️ Level: ${level} (${
+            data.xp > 0 ? ((data.xp * 100) / start).toFixed(1) : "0.0"
+          }%)`
+        ),
+      })
+      .setThumbnail("attachment://main.png")
+      .addFields([
+        {
+          name: "Ranked Stats",
+          value: `>>> ${rank[1].icon} ${client.title(rank[0])} (\`${
+            data.points || 0
+          }\`)
+        🎯 K/DA: \`0\` (C: \`0\` | W: \`0\`)
+        🕒 Average Time: \`${(data.averageTime
+          ? data.averageTime / 10
+          : 0
+        ).toFixed(1)}s\``,
+          inline: true,
+        },
+        {
+          name: "Card Match Stats",
+          value: `>>> ${match.join("\n")}`,
+          inline: true,
+        },
+      ]);
 
-    await message.reply({
-      files: [attach],
-      embeds: [
-        client
-          .createEmbed({
-            title: `👤 ${member.displayName}'s Profile`,
-            description: client.blocker(
-              `📙 Photocards: ${
-                data.cards ? data.cards.length : 0
-              }/100\n⚔️ Level: ${level} (${
-                data.xp > 0 ? ((data.xp * 100) / start).toFixed(1) : "0.0"
-              }%)`
-            ),
-          })
-          .setThumbnail("attachment://main.png")
-          .addFields([
-            {
-              name: "Ranked Stats",
-              value: `>>> ${rank[1].icon} ${client.title(rank[0])} (\`${
-                data.points || 0
-              }\`)
-              🎯 K/DA: \`0\` (C: \`0\` | W: \`0\`)
-              🕒 Average Time: \`${(data.averageTime
-                ? data.averageTime / 10
-                : 0
-              ).toFixed(1)}s\``,
-              inline: true,
-            },
-            {
-              name: "Card Match Stats",
-              value: `>>> ${match.join("\n")}`,
-              inline: true,
-            },
-          ]),
-      ],
-    });
+    const messageData = {
+      embeds: [embed],
+    };
+
+    if (data.main) {
+      const attach = new AttachmentBuilder()
+        .setFile(data.main.url)
+        .setName("main.png");
+
+      embed.setThumbnail("attachment://main.png");
+
+      messageData.files = [attach];
+      messageData.embeds = [embed];
+    }
+
+    await message.reply(messageData);
   },
 };
